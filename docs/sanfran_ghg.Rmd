@@ -1,0 +1,41 @@
+---
+title: "sf_wrangling"
+author: "zachyloo"
+date: "2025-08-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load("tidyverse", "here")
+
+sf_df <- read_csv(here::here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv")) |> 
+  janitor::clean_names()
+```
+
+Total annual GHG by sector_general
+```{r}
+ghg_by_sector <- sf_df |>
+  select(sector_general, emissions_mt_co2e) |> 
+  group_by(sector_general) |> 
+  summarize(tot_annual_ghg = sum(emissions_mt_co2e, na.rm = TRUE))
+```
+
+Total annual GHG by year & commodity
+```{r}
+ghg_by_yr_commodity <- sf_df |> 
+  select(emissions_mt_co2e, calendar_year, commodity_type) |> 
+  group_by(calendar_year, commodity_type) |> 
+  summarize(tot_annual_ghg = sum(emissions_mt_co2e, na.rm = TRUE))
+```
+
+Subset from 2005 and on where Sector_Detail2 contains "PG&E"
+```{r}
+sf_subset <- sf_df |> 
+  filter(str_detect(string = sector_detail2, pattern = "PG&E")) |> 
+  select(calendar_year, sector_detail2, emissions_mt_co2e)
+```
+
