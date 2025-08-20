@@ -1,0 +1,31 @@
+---
+title: "awesome_space"
+author: "zachyloo"
+date: "2025-08-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load("tidyverse", "here")
+space_df <- read_csv(here::here("data", "space_launches.csv"))
+```
+
+```{r}
+# Count how many launches per year
+year_counts <- table(space_df$launch_year)
+colors <- c("#972631","#4E656E","#817F3B","#64595F","#7A803C")
+# background
+par(bg = "#68555F")
+#  pie chart
+pie(year_counts,
+    main = "Space Pie",
+    col = colors,
+    labels = names(year_counts),
+    density = 20
+)
+```
+
