@@ -21,11 +21,15 @@ colors <- c("#972631","#4E656E","#817F3B","#64595F","#7A803C")
 # background
 par(bg = "#68555F")
 #  pie chart
-pie(year_counts,
-    main = "Space Pie",
-    col = colors,
-    labels = names(year_counts),
-    density = 20
-)
+beautiful_pie <- pie(year_counts,
+                     main = "Pie", 
+                     col = colors,
+                     labels = names(year_counts),
+                     density = 20)
+    
+```
+
+```{r}
+ggsave(beautiful_pie, here::here("figs", "ugly_pie.png"), height = 6, width = 7)
 ```
 

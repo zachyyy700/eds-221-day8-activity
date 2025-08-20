@@ -10,18 +10,20 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-pacman::p_load("tidyverse", "here")
+pacman::p_load("tidyverse", "here", "scales")
 
 sf_df <- read_csv(here::here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv")) |> 
   janitor::clean_names()
 ```
 
+# Task 2
 Total annual GHG by sector_general
 ```{r}
 ghg_by_sector <- sf_df |>
   select(sector_general, emissions_mt_co2e) |> 
   group_by(sector_general) |> 
-  summarize(tot_annual_ghg = sum(emissions_mt_co2e, na.rm = TRUE))
+  summarize(tot_annual_ghg = sum(emissions_mt_co2e, na.rm = TRUE)) |> 
+  ungroup()
 ```
 
 Total annual GHG by year & commodity
@@ -29,13 +31,40 @@ Total annual GHG by year & commodity
 ghg_by_yr_commodity <- sf_df |> 
   select(emissions_mt_co2e, calendar_year, commodity_type) |> 
   group_by(calendar_year, commodity_type) |> 
-  summarize(tot_annual_ghg = sum(emissions_mt_co2e, na.rm = TRUE))
+  summarize(tot_annual_ghg = sum(emissions_mt_co2e, na.rm = TRUE)) |> 
+  ungroup()
 ```
 
 Subset from 2005 and on where Sector_Detail2 contains "PG&E"
 ```{r}
 sf_subset <- sf_df |> 
-  filter(str_detect(string = sector_detail2, pattern = "PG&E")) |> 
+  filter(str_detect(string = sector_detail2, pattern = "PG&E"))|>
+  filter(calendar_year > 2005) |> 
   select(calendar_year, sector_detail2, emissions_mt_co2e)
+  
+```
+
+# Task 3
+Data viz best
+```{r}
+# total ghg by sector detail since 1990
+sf_sd1 <- sf_df |> 
+  group_by(sector_detail1) |> 
+  summarize(total_ghg = sum(emissions_mt_co2e, na.rm = TRUE)) 
+
+ggplot(sf_sd1, aes(x = total_ghg, y = reorder(sector_detail1, total_ghg), fill = total_ghg)) +
+  geom_col() +
+  labs(title = "Total Carbon Dioxide Emissions by Sector",
+       subtitle = "San Francisco City, since 1990",
+       x = "CO2 Emissions (metric tons)",
+       y = "Sector") +
+  scale_fill_gradient(low = "grey", high = "darkblue") +
+  scale_x_continuous(labels = comma) +
+  ggthemes::theme_calc() +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggsave(here::here("figs", "nice_bars.png"), height = 7, width = 6)
 ```
 
